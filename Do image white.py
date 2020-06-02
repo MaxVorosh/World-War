@@ -1,15 +1,11 @@
 from PIL import Image
 
-img = Image.open('data\\Sprites\\allies_art.png')
-img = img.convert("RGBA")
-datas = img.getdata()
+img = Image.open('data\\Sprites\\next.png')
+data = img.load()
+x, y = img.size
 
-newData = []
-for item in datas:
-    if item[0] == item[1] == item[2] and item[0] > 100:
-        newData.append((255, 255, 255, 0))
-    else:
-        newData.append(item)
+for i in range(x):
+    for j in range(y):
+        data[i, j] = (255 - data[i, j][0], 255 - data[i, j][1], 255 - data[i, j][2])
 
-img.putdata(newData)
-img.save("data\\Sprites\\allies_art_1.png", "PNG")
+img.save("data\\Sprites\\next.png")

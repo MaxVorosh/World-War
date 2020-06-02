@@ -2,6 +2,7 @@ from data.Classes.Window import *
 from data.Classes.Button import *
 import sys
 from data.Classes.LevelMenu import *
+from data.Classes.Level import *
 
 
 class SecondMenu(Window):
@@ -39,7 +40,7 @@ class SecondMenu(Window):
         self.set_background("data\\Sprites\\bg.jpg")
 
     def kursk(self):
-        pass
+        Level('Курская битва', 'Citadel', False)
 
     def midway(self):
         pass

@@ -13,6 +13,16 @@ def upndown(let):
         return 100
     return 50
 
+def load(name, colorkey=None):
+    image = pygame.image.load(name).convert()
+    if colorkey is not None:
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    else:
+        image = image.convert_alpha()
+    return image
+
 
 class Level:
     def __init__(self, music_name, title, is_axis):
@@ -33,7 +43,15 @@ class Level:
         self.can_attach = []
         self.is_axis = is_axis
         self.board = [[None for j in range(self.height)] for i in range(self.width)]
+        self.defence = [[False for j in range(self.height)] for i in range(self.width)]
         self.all_sprites = pygame.sprite.Group()
+        self.techs_sprites = pygame.sprite.Group()
+        next_turn_button = pygame.sprite.Sprite()
+        next_turn_button.image = pygame.transform.scale(load("data\\Sprites\\next.png"), (self.cell_size, self.cell_size))
+        next_turn_button.rect = next_turn_button.image.get_rect()
+        next_turn_button.rect.x = self.width * self.cell_size
+        next_turn_button.rect.y = self.height * self.cell_size
+        self.all_sprites.add(next_turn_button)
         f = open("data\\Maps\\Land\\" + title + ".txt")
         data_land = [i.split() for i in f.readlines()]
         f = open("data\\Maps\\Army\\" + title + ".txt")
@@ -52,6 +70,16 @@ class Level:
                     self.all_sprites.add(Tile(j, i, 80, 'Город'))
                 if data_land[i][j] == 'TT':
                     self.all_sprites.add(Tile(j, i, 80, 'Деревня'))
+                if data_land[i][j][1] == 'D':
+                    self.defence[i][j] = True
+                    if data_land[i][j] == 'LD':
+                        self.all_sprites.add(Tile(j, i, 80, 'Поле_укреп'))
+                    if data_land[i][j] == 'FD':
+                        self.all_sprites.add(Tile(j, i, 80, 'Лес_укреп'))
+                    if data_land[i][j] == 'CD':
+                        self.all_sprites.add(Tile(j, i, 80, 'Город_укреп'))
+                    if data_land[i][j] == 'TD':
+                        self.all_sprites.add(Tile(j, i, 80, 'Деревня_укреп'))
         for i in range(len(data_army)):
             for j in range(len(data_army[i])):
                 strength = upndown(data_army[i][j][1])
@@ -72,11 +100,12 @@ class Level:
                     else:
                         enem = Artillery(strength // 3, j, i, 'axis_art_1', 80, True, strength)
                 if enem is not None:
-                    self.all_sprites.add(enem)
+                    self.techs_sprites.add(enem)
                 self.board[i][j] = enem
         n = int(data_land[self.height][0])
         self.key_positions = [(int(data_land[self.height + 1 + i][0]), int(data_land[self.height + 1 + i][1])) for i in
                               range(n)]
+        self.is_visited = {i:False for i in self.key_positions}
         self.run()
 
     def run(self):
@@ -84,14 +113,17 @@ class Level:
         #     print(*i)
         run = True
         while run:
-            win = True
+            # print(11)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exitFunc()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.get_click(event.pos)
+                    if event.pos[0] > self.width * self.cell_size and event.pos[1] > self.height * self.cell_size:
+                        self.next_turn()
             self.screen.fill((0, 0, 0))
             self.all_sprites.draw(self.screen)
+            self.techs_sprites.draw(self.screen)
             for i in range(self.width):
                 for j in range(self.height):
                     if self.board[i][j] is not None:
@@ -100,9 +132,12 @@ class Level:
                 pygame.draw.circle(self.screen, pygame.Color('yellow'),
                                    (self.cell_size * i[0] + self.cell_size // 2,
                                     self.cell_size * i[1] + self.cell_size // 2), 15)
-                if self.board[i[1]][i[0]] is None:
-                    win = False
-            if win:
+                if self.board[i[1]][i[0]] is not None:
+                    if self.board[i[1]][i[0]].is_axis == self.is_axis:
+                        self.is_visited[i] = True
+                    else:
+                        self.is_visited[i] = False
+            if all(self.is_visited.values()):
                 run = False
             if self.is_clicked:
                 pygame.draw.circle(self.screen, pygame.Color('green'),
@@ -147,7 +182,6 @@ class Level:
                                                                                          self.last_x]
                 self.can_move = []
                 self.can_attach = []
-                self.next_turn()
             elif cell in self.can_attach:
                 # for i in self.board:
                 #     print(*i)
@@ -164,7 +198,6 @@ class Level:
                     self.board[y][x] = None
                 if self.board[cell[1]][cell[0]].hp <= 0:
                     self.board[cell[1]][cell[0]] = None
-                self.next_turn()
             else:
                 self.can_move = []
                 self.can_attach = []
@@ -189,7 +222,32 @@ class Level:
                                         self.can_attach.append((j, i))
 
     def next_turn(self):
-        pass
+        for sprite in self.techs_sprites:
+            print()
+            minim = None
+            min_hp = 10000
+            sprite.is_moved = False
+            if sprite.is_axis != self.is_axis:
+                for i in range(sprite.y - 3, sprite.y + 4):
+                    if self.height > i >= 0:
+                        for j in range(sprite.x - 3, sprite.x + 4):
+                            if self.width > j >= 0 and not (i == sprite.y and j == sprite.x):
+                                print(j, i, self.board[i][j], sprite.x, sprite.y)
+                                if self.board[i][j] is not None and self.board[i][j].is_axis == self.is_axis:
+                                    if self.board[sprite.y][sprite.x].can_attach(j, i, self.board):
+                                        if self.board[i][j].hp < min_hp:
+                                            minim = self.board[i][j]
+                                            min_hp = minim.hp
+            if minim is not None:
+                x = sprite.x
+                y = sprite.y
+                sprite.attach(minim, self.board)
+                self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], self.board[y][x]
+                if self.board[sprite.y][sprite.x].hp <= 0:
+                    self.board[sprite.y][sprite.x] = None
+                if self.board[minim.y][minim.x].hp <= 0:
+                    self.board[minim.y][minim.x] = None
+
 
     def draw_number(self, i, j):
         font = pygame.font.Font(None, self.cell_size // 2)
