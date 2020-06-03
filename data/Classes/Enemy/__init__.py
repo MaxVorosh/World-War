@@ -53,8 +53,8 @@ class Enemy(pygame.sprite.Sprite):
         turns = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for i in turns:
             if (0 <= other.x + i[0] < 7 and
-                    board[other.y + i[1]][other.x + i[0]] is None and
                     0 <= other.y < 7 and
+                    board[other.y + i[1]][other.x + i[0]] is None and
                     self.go_to(self.move_range - 1, self.x, self.y, other.x + i[0], other.y + i[1], board, path)):
                 self.move(other.x + i[0], other.y + i[1])
                 break

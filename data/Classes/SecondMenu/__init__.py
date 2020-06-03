@@ -40,7 +40,7 @@ class SecondMenu(Window):
         self.set_background("data\\Sprites\\bg.jpg")
 
     def kursk(self):
-        Level('Курская битва', 'Citadel', False)
+        Level('Курская битва', 'Citadel', False, 2, 10)
 
     def midway(self):
         pass

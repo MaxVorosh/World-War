@@ -39,7 +39,7 @@ class ZeroMenu(Window):
         sys.exit()
 
     def Blizkreig(self):
-        Level('Блицкриг', 'Blizkreig', True)
+        Level('Блицкриг', 'Blizkreig', True, 0, 10)
 
     def Attach(self):
         pass

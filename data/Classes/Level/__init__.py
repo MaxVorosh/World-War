@@ -4,6 +4,8 @@ from ..Infanitry import Infanitry
 from ..Artilerry import Artillery
 from ..Tancs import Tancs
 import sys
+from ..Goodbye import Goodbye
+from ..Badbye import Badbye
 
 
 def upndown(let):
@@ -12,6 +14,7 @@ def upndown(let):
     if let == 'M':
         return 100
     return 50
+
 
 def load(name, colorkey=None):
     image = pygame.image.load(name).convert()
@@ -25,7 +28,7 @@ def load(name, colorkey=None):
 
 
 class Level:
-    def __init__(self, music_name, title, is_axis):
+    def __init__(self, music_name, title, is_axis, window_number, need_turns):
         pygame.init()
         pygame.mixer.music.load("data\\Music\\" + music_name + ".mp3")
         pygame.mixer.music.set_volume(0.05)
@@ -34,7 +37,10 @@ class Level:
         self.is_clicked = False
         self.left = 0
         self.top = 0
+        self.turns = 1
         self.cell_size = 80
+        self.window_number = window_number
+        self.need_turns = need_turns
         self.width = 7
         self.height = 7
         self.last_x = None
@@ -48,7 +54,8 @@ class Level:
         self.all_sprites = pygame.sprite.Group()
         self.techs_sprites = pygame.sprite.Group()
         next_turn_button = pygame.sprite.Sprite()
-        next_turn_button.image = pygame.transform.scale(load("data\\Sprites\\next.png"), (self.cell_size, self.cell_size))
+        next_turn_button.image = pygame.transform.scale(load("data\\Sprites\\next.png"),
+                                                        (self.cell_size, self.cell_size))
         next_turn_button.rect = next_turn_button.image.get_rect()
         next_turn_button.rect.x = self.width * self.cell_size
         next_turn_button.rect.y = self.height * self.cell_size
@@ -119,6 +126,7 @@ class Level:
         # for i in self.board:
         #     print(*i)
         run = True
+        win = False
         while run:
             # print(11)
             for event in pygame.event.get():
@@ -131,6 +139,8 @@ class Level:
             self.screen.fill((0, 0, 0))
             self.all_sprites.draw(self.screen)
             self.techs_sprites.draw(self.screen)
+            if self.turns > self.need_turns:
+                run = False
             for i in range(self.width):
                 for j in range(self.height):
                     if self.board[i][j] is not None:
@@ -146,6 +156,7 @@ class Level:
                         self.is_visited[i] = False
             if all(self.is_visited.values()):
                 run = False
+                win = True
             if self.is_clicked:
                 pygame.draw.circle(self.screen, pygame.Color('green'),
                                    (self.cell_size * self.last_x + self.cell_size // 2,
@@ -159,6 +170,10 @@ class Level:
                                    (self.cell_size * i[0] + self.cell_size // 2,
                                     self.cell_size * i[1] + self.cell_size // 2), 10)
             pygame.display.flip()
+        if win:
+            Goodbye(self.window_number, self.turns, self.screen)
+        else:
+            Badbye(self.window_number, self.screen)
 
     def exitFunc(self):
         pygame.quit()
@@ -230,6 +245,29 @@ class Level:
 
     def next_turn(self):
         for sprite in self.techs_sprites:
+            is_moved = False
+            if sprite.is_axis != self.is_axis:
+                for i in self.key_positions:
+                    if self.is_visited[i] and sprite.go_to(sprite.move_range, sprite.x, sprite.y, i[0], i[1],
+                                                           self.board, self.path):
+                        if self.board[i[1]][i[0]] is None:
+                            self.board[sprite.y][sprite.x], self.board[i[1]][i[0]] = self.board[i[1]][i[0]], \
+                                                                                     self.board[sprite.y][sprite.x]
+                            sprite.move(i[0], i[1])
+                        else:
+                            x = sprite.x
+                            y = sprite.y
+                            sprite.attach(self.board[i[1]][i[0]], self.board, self.defence, self.path)
+                            self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], \
+                                                                               self.board[y][x]
+                            if sprite.hp <= 0:
+                                self.board[sprite.y][sprite.x] = None
+                            if self.board[i[1]][i[0]].hp <= 0:
+                                self.board[i[1]][i[0]] = None
+                        is_moved = True
+                        break
+                if is_moved:
+                    continue
             minim = None
             min_hp = 10000
             sprite.is_moved = False
@@ -253,6 +291,7 @@ class Level:
                     self.board[sprite.y][sprite.x] = None
                 if self.board[minim.y][minim.x].hp <= 0:
                     self.board[minim.y][minim.x] = None
+        self.turns += 1
 
     def draw_number(self, i, j):
         font = pygame.font.Font(None, self.cell_size // 2)
