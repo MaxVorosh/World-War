@@ -44,6 +44,7 @@ class Level:
         self.is_axis = is_axis
         self.board = [[None for j in range(self.height)] for i in range(self.width)]
         self.defence = [[False for j in range(self.height)] for i in range(self.width)]
+        self.path = [[100 for j in range(self.height + 1)] for i in range(self.width + 1)]
         self.all_sprites = pygame.sprite.Group()
         self.techs_sprites = pygame.sprite.Group()
         next_turn_button = pygame.sprite.Sprite()
@@ -60,17 +61,23 @@ class Level:
             for j in range(self.width):
                 if data_land[i][j] == 'WW':
                     self.all_sprites.add(Tile(j, i, 80, 'Вода'))
+                    self.path[i][j] = 7
                 if data_land[i][j] == 'LL':
                     self.all_sprites.add(Tile(j, i, 80, 'Поле'))
+                    self.path[i][j] = 1
                 if data_land[i][j] == 'FF':
                     self.all_sprites.add(Tile(j, i, 80, 'Лес'))
+                    self.path[i][j] = 1.5
                 if data_land[i][j] == 'MM':
                     self.all_sprites.add(Tile(j, i, 80, 'Гора'))
                 if data_land[i][j] == 'CC':
                     self.all_sprites.add(Tile(j, i, 80, 'Город'))
+                    self.path[i][j] = 1.5
                 if data_land[i][j] == 'TT':
                     self.all_sprites.add(Tile(j, i, 80, 'Деревня'))
+                    self.path[i][j] = 1
                 if data_land[i][j][1] == 'D':
+                    self.path[i][j] = 1.5
                     self.defence[i][j] = True
                     if data_land[i][j] == 'LD':
                         self.all_sprites.add(Tile(j, i, 80, 'Поле_укреп'))
@@ -105,7 +112,7 @@ class Level:
         n = int(data_land[self.height][0])
         self.key_positions = [(int(data_land[self.height + 1 + i][0]), int(data_land[self.height + 1 + i][1])) for i in
                               range(n)]
-        self.is_visited = {i:False for i in self.key_positions}
+        self.is_visited = {i: False for i in self.key_positions}
         self.run()
 
     def run(self):
@@ -187,7 +194,7 @@ class Level:
                 #     print(*i)
                 self.board[self.last_y][self.last_x].is_moved = True
                 enem = self.board[self.last_y][self.last_x]
-                enem.attach(self.board[cell[1]][cell[0]], self.board)
+                enem.attach(self.board[cell[1]][cell[0]], self.board, self.defence, self.path)
                 x = enem.x
                 y = enem.y
                 self.board[self.last_y][self.last_x], self.board[y][x] = self.board[y][x], self.board[self.last_y][
@@ -214,16 +221,15 @@ class Level:
                                 if self.board[i][j] is None:
                                     if self.board[cell[1]][cell[0]].go_to(self.board[cell[1]][cell[0]].move_range,
                                                                           self.board[cell[1]][cell[0]].x,
-                                                                          self.board[cell[1]][cell[0]].y, j, i, 1,
-                                                                          self.board):
+                                                                          self.board[cell[1]][cell[0]].y, j, i,
+                                                                          self.board, self.path):
                                         self.can_move.append((j, i))
                                 elif self.board[i][j].is_axis != self.board[cell[1]][cell[0]].is_axis:
-                                    if self.board[cell[1]][cell[0]].can_attach(j, i, self.board):
+                                    if self.board[cell[1]][cell[0]].can_attach(j, i, self.board, self.path):
                                         self.can_attach.append((j, i))
 
     def next_turn(self):
         for sprite in self.techs_sprites:
-            print()
             minim = None
             min_hp = 10000
             sprite.is_moved = False
@@ -232,22 +238,21 @@ class Level:
                     if self.height > i >= 0:
                         for j in range(sprite.x - 3, sprite.x + 4):
                             if self.width > j >= 0 and not (i == sprite.y and j == sprite.x):
-                                print(j, i, self.board[i][j], sprite.x, sprite.y)
+                                # print(j, i, self.board[i][j], sprite.x, sprite.y)
                                 if self.board[i][j] is not None and self.board[i][j].is_axis == self.is_axis:
-                                    if self.board[sprite.y][sprite.x].can_attach(j, i, self.board):
+                                    if self.board[sprite.y][sprite.x].can_attach(j, i, self.board, self.path):
                                         if self.board[i][j].hp < min_hp:
                                             minim = self.board[i][j]
                                             min_hp = minim.hp
             if minim is not None:
                 x = sprite.x
                 y = sprite.y
-                sprite.attach(minim, self.board)
+                sprite.attach(minim, self.board, self.defence, self.path)
                 self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], self.board[y][x]
                 if self.board[sprite.y][sprite.x].hp <= 0:
                     self.board[sprite.y][sprite.x] = None
                 if self.board[minim.y][minim.x].hp <= 0:
                     self.board[minim.y][minim.x] = None
-
 
     def draw_number(self, i, j):
         font = pygame.font.Font(None, self.cell_size // 2)

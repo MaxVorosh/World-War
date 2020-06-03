@@ -36,34 +36,43 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = self.x * self.cell_size
         self.rect.y = self.y * self.cell_size
 
-    def go_to(self, turns, x, y, need_x, need_y, k, board):
+    def go_to(self, turns, x, y, need_x, need_y, board, path):
+        if turns > 0 and 0 <= x < 7 and 0 <= y < 7 and board[y][x] is not None and board[y][x].is_axis != self.is_axis:
+            turns = 0
+        if turns < 0 or (not 0 <= x < 7) or (not 0 <= y < 7) or (
+                board[y][x] is not None and board[y][x] != self and board[y][x].is_axis == self.is_axis):
+            return False
         if x == need_x and y == need_y:
             return True
-        if turns == 0 or (not 0 <= x < 7) or (not 0 <= y < 7) or (board[y][x] is not None and board[y][x] != self):
-            return False
-        return (self.go_to(turns - k, x + 1, y, need_x, need_y, k, board)
-                or self.go_to(turns - k, x - 1, y, need_x, need_y, k, board)
-                or self.go_to(turns - k, x, y + 1, need_x, need_y, k, board)
-                or self.go_to(turns - k, x, y - 1, need_x, need_y, k, board))
+        return (self.go_to(turns - path[y][x + 1], x + 1, y, need_x, need_y, board, path)
+                or self.go_to(turns - path[y][x - 1], x - 1, y, need_x, need_y, board, path)
+                or self.go_to(turns - path[y + 1][x], x, y + 1, need_x, need_y, board, path)
+                or self.go_to(turns - path[y - 1][x], x, y - 1, need_x, need_y, board, path))
 
-    def attach(self, other, board):
+    def attach(self, other, board, defence, path):
         turns = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for i in turns:
             if (0 <= other.x + i[0] < 7 and
                     board[other.y + i[1]][other.x + i[0]] is None and
                     0 <= other.y < 7 and
-                    self.go_to(self.move_range, self.x, self.y, other.x + i[0], other.y + i[1], 1, board)):
+                    self.go_to(self.move_range - 1, self.x, self.y, other.x + i[0], other.y + i[1], board, path)):
                 self.move(other.x + i[0], other.y + i[1])
                 break
-        other.hp -= self.strength
+        if defence[other.y][other.x]:
+            other.hp -= self.strength // 2
+        else:
+            other.hp -= self.strength
         other.strength = other.hp // 3
         if other.hp <= 0:
             other.kill()
         else:
-            self.hp -= other.strength
+            if defence[self.y][self.x]:
+                self.hp -= other.strength // 2
+            else:
+                self.hp -= other.strength
             self.strength = self.hp // 3
             if self.hp <= 0:
                 self.kill()
 
-    def can_attach(self, x, y, board):
-        return self.go_to(self.attach_range + self.move_range - 1, self.x, self.y, x, y, 1, board)
+    def can_attach(self, x, y, board, path):
+        return self.go_to(self.attach_range + self.move_range - 1, self.x, self.y, x, y, board, path)
