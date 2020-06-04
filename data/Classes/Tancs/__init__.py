@@ -1,16 +1,5 @@
 import pygame
-from ..Enemy import Enemy
-
-
-def load(name, colorkey=None):
-    image = pygame.image.load(name).convert()
-    if colorkey is not None:
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    else:
-        image = image.convert_alpha()
-    return image
+from ..Enemy import Enemy, load
 
 
 class Tancs(Enemy):

@@ -7,7 +7,7 @@ from data.Classes.SecondMenu import *
 from ..Level import *
 
 
-desc = {'Blizkreig': '1940 г. Территория Франции', 'Attach': ''}
+desc = {'Blitzkrieg': '1940 г. Территория Франции', 'Wolfpack': ''}
 
 
 class ZeroMenu(Window):
@@ -42,10 +42,10 @@ class ZeroMenu(Window):
         sys.exit()
 
     def Blizkreig(self):
-        Level('Блицкриг', 'Blizkreig', True, 0, 10, desc['Blizkreig'])
+        Level('Блицкриг', 'Blitzkrieg', True, 0, 10, desc['Blitzkrieg'])
 
     def Attach(self):
-        pass
+        Level('Атака на конвои', 'Wolfpack', True, 0, 10, desc['Wolfpack'])
 
     def goToLast(self):
         self.running = False

@@ -6,6 +6,10 @@ from ..Tancs import Tancs
 import sys
 from ..Goodbye import Goodbye
 from ..Badbye import Badbye
+from ..Submarine import Submarine
+from ..Transport import Transport
+from ..Battleship import Battleship
+from ..Destroyer import Destroyer
 
 
 def upndown(let):
@@ -146,6 +150,26 @@ class Level:
                         enem = Artillery(strength // 3, j, i, 'allies_art_1', 80, False, strength)
                     else:
                         enem = Artillery(strength // 3, j, i, 'axis_art_1', 80, True, strength)
+                if data_army[i][j][0] == 'W':
+                    if data_army[i][j][2] == 'L':
+                        enem = Submarine(strength // 3, j, i, 'allies_sub_1', 80, False, strength)
+                    else:
+                        enem = Submarine(strength // 3, j, i, 'axis_sub_1', 80, True, strength)
+                if data_army[i][j][0] == 'T':
+                    if data_army[i][j][2] == 'L':
+                        enem = Transport(strength // 3, j, i, 'allies_tra_1', 80, False, strength)
+                    # else:
+                    #     enem = Transport(strength // 3, j, i, 'axis_tra_1', 80, True, strength)
+                if data_army[i][j][0] == 'D':
+                    if data_army[i][j][2] == 'L':
+                        enem = Destroyer(strength // 3, j, i, 'allies_des_1', 80, False, strength)
+                    else:
+                        enem = Destroyer(strength // 3, j, i, 'axis_des_1', 80, True, strength)
+                if data_army[i][j][0] == 'B':
+                    if data_army[i][j][2] == 'L':
+                        enem = Battleship(strength // 3, j, i, 'allies_bat_1', 80, False, strength)
+                    else:
+                        enem = Battleship(strength // 3, j, i, 'axis_bat_1', 80, True, strength)
                 if enem is not None:
                     self.techs_sprites.add(enem)
                 self.board[i][j] = enem
