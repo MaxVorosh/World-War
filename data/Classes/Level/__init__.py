@@ -27,8 +27,32 @@ def load(name, colorkey=None):
     return image
 
 
+def make_fon(screen, intro_text):
+    font = pygame.font.Font(None, 30)
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord = 560 + 40 - string_rendered.get_height() // 2
+        intro_rect.top = text_coord
+        intro_rect.x = screen.get_width() // 2 - string_rendered.get_width() // 2 - 40
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+
+def make_fon_2(screen, intro_text):
+    font = pygame.font.Font(None, 30)
+    text_coord = 300
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.top = text_coord
+        intro_rect.x = 600 - string_rendered.get_width() // 2
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+
 class Level:
-    def __init__(self, music_name, title, is_axis, window_number, need_turns):
+    def __init__(self, music_name, title, is_axis, window_number, need_turns, desc):
         pygame.init()
         pygame.mixer.music.load("data\\Music\\" + music_name + ".mp3")
         pygame.mixer.music.set_volume(0.05)
@@ -38,6 +62,8 @@ class Level:
         self.left = 0
         self.top = 0
         self.turns = 1
+        self.title = title
+        self.description = desc
         self.cell_size = 80
         self.window_number = window_number
         self.need_turns = need_turns
@@ -59,7 +85,14 @@ class Level:
         next_turn_button.rect = next_turn_button.image.get_rect()
         next_turn_button.rect.x = self.width * self.cell_size
         next_turn_button.rect.y = self.height * self.cell_size
+        go_to_last_button = pygame.sprite.Sprite()
+        go_to_last_button.image = pygame.transform.scale(load("data\\Sprites\\Last_1.png"),
+                                                        (self.cell_size, self.cell_size))
+        go_to_last_button.rect = go_to_last_button.image.get_rect()
+        go_to_last_button.rect.y = 0
+        go_to_last_button.rect.x = self.height * self.cell_size
         self.all_sprites.add(next_turn_button)
+        self.all_sprites.add(go_to_last_button)
         f = open("data\\Maps\\Land\\" + title + ".txt")
         data_land = [i.split() for i in f.readlines()]
         f = open("data\\Maps\\Army\\" + title + ".txt")
@@ -125,10 +158,11 @@ class Level:
     def run(self):
         # for i in self.board:
         #     print(*i)
-        run = True
-        win = False
-        while run:
-            # print(11)
+        self.running = True
+        win = 0
+        while self.running:
+            text_r = ['Ход ', str(self.turns), '/', str(self.need_turns)]
+            text = [self.title + ' - ' + self.description]
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exitFunc()
@@ -136,11 +170,16 @@ class Level:
                     self.get_click(event.pos)
                     if event.pos[0] > self.width * self.cell_size and event.pos[1] > self.height * self.cell_size:
                         self.next_turn()
+                    if event.pos[1] < self.cell_size and event.pos[0] > self.height * self.cell_size:
+                        self.go_to_last()
             self.screen.fill((0, 0, 0))
+            make_fon(self.screen, text)
+            make_fon_2(self.screen, text_r)
             self.all_sprites.draw(self.screen)
             self.techs_sprites.draw(self.screen)
             if self.turns > self.need_turns:
-                run = False
+                self.running = False
+                win = 1
             for i in range(self.width):
                 for j in range(self.height):
                     if self.board[i][j] is not None:
@@ -155,8 +194,8 @@ class Level:
                     else:
                         self.is_visited[i] = False
             if all(self.is_visited.values()):
-                run = False
-                win = True
+                self.running = False
+                win = 2
             if self.is_clicked:
                 pygame.draw.circle(self.screen, pygame.Color('green'),
                                    (self.cell_size * self.last_x + self.cell_size // 2,
@@ -170,9 +209,9 @@ class Level:
                                    (self.cell_size * i[0] + self.cell_size // 2,
                                     self.cell_size * i[1] + self.cell_size // 2), 10)
             pygame.display.flip()
-        if win:
+        if win == 2:
             Goodbye(self.window_number, self.turns, self.screen)
-        else:
+        elif win == 1:
             Badbye(self.window_number, self.screen)
 
     def exitFunc(self):
@@ -299,3 +338,6 @@ class Level:
         text_x = self.left + self.cell_size * j
         text_y = self.top + self.cell_size * i
         self.screen.blit(text, (text_x, text_y))
+
+    def go_to_last(self):
+        self.running = False

@@ -7,6 +7,9 @@ from data.Classes.SecondMenu import *
 from ..Level import *
 
 
+desc = {'Blizkreig': '1940 г. Территория Франции', 'Attach': ''}
+
+
 class ZeroMenu(Window):
     def __init__(self):
         super().__init__()
@@ -39,7 +42,7 @@ class ZeroMenu(Window):
         sys.exit()
 
     def Blizkreig(self):
-        Level('Блицкриг', 'Blizkreig', True, 0, 10)
+        Level('Блицкриг', 'Blizkreig', True, 0, 10, desc['Blizkreig'])
 
     def Attach(self):
         pass

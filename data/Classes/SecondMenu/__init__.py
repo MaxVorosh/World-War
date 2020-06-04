@@ -5,6 +5,9 @@ from data.Classes.LevelMenu import *
 from data.Classes.Level import *
 
 
+desc = {'kursk': '1943 г. СССР. Курск', 'midway': '', 'overloard': '', 'berlin': ''}
+
+
 class SecondMenu(Window):
     def __init__(self):
         super().__init__()
@@ -40,7 +43,7 @@ class SecondMenu(Window):
         self.set_background("data\\Sprites\\bg.jpg")
 
     def kursk(self):
-        Level('Курская битва', 'Citadel', False, 2, 10)
+        Level('Курская битва', 'Citadel', False, 2, 10, desc['kursk'])
 
     def midway(self):
         pass
