@@ -1,7 +1,7 @@
 import pygame
 from ..Tile import Tile
 from ..Infanitry import Infanitry
-from ..Artilerry import Artillery
+from ..Artilery import Artillery
 from ..Tancs import Tancs
 import sys
 from ..Goodbye import Goodbye
@@ -91,7 +91,7 @@ class Level:
         next_turn_button.rect.y = self.height * self.cell_size
         go_to_last_button = pygame.sprite.Sprite()
         go_to_last_button.image = pygame.transform.scale(load("data\\Sprites\\Last_1.png"),
-                                                        (self.cell_size, self.cell_size))
+                                                         (self.cell_size, self.cell_size))
         go_to_last_button.rect = go_to_last_button.image.get_rect()
         go_to_last_button.rect.y = 0
         go_to_last_button.rect.x = self.height * self.cell_size
@@ -158,8 +158,8 @@ class Level:
                 if data_army[i][j][0] == 'T':
                     if data_army[i][j][2] == 'L':
                         enem = Transport(strength // 3, j, i, 'allies_tra_1', 80, False, strength)
-                    # else:
-                    #     enem = Transport(strength // 3, j, i, 'axis_tra_1', 80, True, strength)
+                    else:
+                        enem = Transport(strength // 3, j, i, 'axis_tra_1', 80, True, strength)
                 if data_army[i][j][0] == 'D':
                     if data_army[i][j][2] == 'L':
                         enem = Destroyer(strength // 3, j, i, 'allies_des_1', 80, False, strength)
@@ -308,43 +308,53 @@ class Level:
 
     def next_turn(self):
         for sprite in self.techs_sprites:
-            is_moved = False
-            if sprite.is_axis != self.is_axis:
-                for i in self.key_positions:
-                    if self.is_visited[i] and sprite.go_to(sprite.move_range, sprite.x, sprite.y, i[0], i[1],
-                                                           self.board, self.path):
-                        if self.board[i[1]][i[0]] is None:
-                            self.board[sprite.y][sprite.x], self.board[i[1]][i[0]] = self.board[i[1]][i[0]], \
-                                                                                     self.board[sprite.y][sprite.x]
-                            sprite.move(i[0], i[1])
-                        else:
-                            x = sprite.x
-                            y = sprite.y
-                            sprite.attach(self.board[i[1]][i[0]], self.board, self.defence, self.path)
-                            self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], \
-                                                                               self.board[y][x]
-                            if sprite.hp <= 0:
-                                self.board[sprite.y][sprite.x] = None
-                            if self.board[i[1]][i[0]].hp <= 0:
-                                self.board[i[1]][i[0]] = None
-                        is_moved = True
-                        break
-                if is_moved:
-                    continue
             minim = None
             min_hp = 10000
             sprite.is_moved = False
-            if sprite.is_axis != self.is_axis:
-                for i in range(sprite.y - 3, sprite.y + 4):
-                    if self.height > i >= 0:
-                        for j in range(sprite.x - 3, sprite.x + 4):
-                            if self.width > j >= 0 and not (i == sprite.y and j == sprite.x):
-                                # print(j, i, self.board[i][j], sprite.x, sprite.y)
-                                if self.board[i][j] is not None and self.board[i][j].is_axis == self.is_axis:
-                                    if self.board[sprite.y][sprite.x].can_attach(j, i, self.board, self.path):
-                                        if self.board[i][j].hp < min_hp:
-                                            minim = self.board[i][j]
-                                            min_hp = minim.hp
+            if sprite.is_axis != self.is_axis and (sprite.x, sprite.y) in self.key_positions:
+                turns = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+                for i in turns:
+                    if 0 <= sprite.x + i[0] < 7 and 0 <= sprite.y + i[1] < 7:
+                        if (self.board[sprite.y + i[1]][sprite.x + i[0]] is not None and
+                                self.board[sprite.y + i[1]][sprite.x + i[0]].is_axis != sprite.is_axis):
+                            if self.board[sprite.y + i[1]][sprite.x + i[0]].hp < min_hp:
+                                minim = self.board[sprite.y + i[1]][sprite.x + i[0]]
+                                min_hp = minim.hp
+            else:
+                is_moved = False
+                if sprite.is_axis != self.is_axis:
+                    for i in self.key_positions:
+                        if self.is_visited[i] and sprite.go_to(sprite.move_range, sprite.x, sprite.y, i[0], i[1],
+                                                               self.board, self.path):
+                            if self.board[i[1]][i[0]] is None:
+                                self.board[sprite.y][sprite.x], self.board[i[1]][i[0]] = self.board[i[1]][i[0]], \
+                                                                                         self.board[sprite.y][sprite.x]
+                                sprite.move(i[0], i[1])
+                            else:
+                                x = sprite.x
+                                y = sprite.y
+                                sprite.attach(self.board[i[1]][i[0]], self.board, self.defence, self.path)
+                                self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], \
+                                                                                   self.board[y][x]
+                                if sprite.hp <= 0:
+                                    self.board[sprite.y][sprite.x] = None
+                                if self.board[i[1]][i[0]].hp <= 0:
+                                    self.board[i[1]][i[0]] = None
+                            is_moved = True
+                            break
+                    if is_moved:
+                        continue
+                if sprite.is_axis != self.is_axis:
+                    for i in range(sprite.y - 3, sprite.y + 4):
+                        if self.height > i >= 0:
+                            for j in range(sprite.x - 3, sprite.x + 4):
+                                if self.width > j >= 0 and not (i == sprite.y and j == sprite.x):
+                                    # print(j, i, self.board[i][j], sprite.x, sprite.y)
+                                    if self.board[i][j] is not None and self.board[i][j].is_axis == self.is_axis:
+                                        if self.board[sprite.y][sprite.x].can_attach(j, i, self.board, self.path):
+                                            if self.board[i][j].hp < min_hp:
+                                                minim = self.board[i][j]
+                                                min_hp = minim.hp
             if minim is not None:
                 x = sprite.x
                 y = sprite.y

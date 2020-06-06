@@ -3,9 +3,18 @@ from data.Classes.Button import *
 import sys
 from data.Classes.LevelMenu import *
 from data.Classes.Level import *
+from ..Intro import Intro
 
-
-desc = {'kursk': '1943 г. СССР. Курск', 'midway': '', 'overloard': '', 'berlin': ''}
+desc = {'kursk': '1943 г. СССР. Курск', 'midway': '1942 г. Тихий океан. Остров Мидуэй',
+        'overloard': '1944 г. Франция. Нормандия', 'berlin': '1945 г. Территория Германии'}
+texts = {'kursk': ['Генерал', 'Противник наступает на Орловско-Курском', 'и Курско-Обоянском направлении',
+                   'Ваша задача - выдержать натиск и перейти в контратаку'],
+         'midway': ['Генерал', 'Противник готовится захватить остров Мидуэй',
+                    'Наша задача - решительно разбить флот Японии',
+                    'Для этого нужно потопить авианосец,', 'который атакует соседний сектор обороны'],
+         'overloard': ['Генерал', 'Наши войска высадились на пляжах',
+                       'Теперь наша задача - продвинуться вглубь Франции'],
+         'berlin': ['Генерал', 'Мы в шаге от победы', 'Необходимо захватить Берлин как можно быстрее']}
 
 
 class SecondMenu(Window):
@@ -43,16 +52,20 @@ class SecondMenu(Window):
         self.set_background("data\\Sprites\\bg.jpg")
 
     def kursk(self):
+        Intro(texts['kursk'])
         Level('Курская битва', 'Citadel', False, 2, 10, desc['kursk'])
 
     def midway(self):
-        pass
+        Intro(texts['midway'])
+        Level('Взятие Мидуэя', 'Midway', False, 2, 9, desc['midway'])
 
     def overloard(self):
-        pass
+        Intro(texts['overloard'])
+        Level('Высадка в Нормандии', 'Overloard', False, 2, 10, desc['overloard'])
 
     def berlin(self):
-        pass
+        Intro(texts['berlin'])
+        Level('Берлинская операция', 'Berlin', False, 2, 12, desc['berlin'])
 
     def goToLast(self):
         self.running = False

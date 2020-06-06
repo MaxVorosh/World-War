@@ -2,6 +2,18 @@ from data.Classes.Window import *
 from data.Classes.Button import *
 import sys
 from data.Classes.LevelMenu import *
+from ..Level import *
+from ..Intro import Intro
+
+desc = {'Osovets': '1915 г. Российская империя. Крепость Осовец',
+        'Verden': '1916 г. Территоия Франции. Крепость Верден', 'Somma': '1916 г. Территория Франции. Река Сомма'}
+
+texsts = {'Osovets': ['Генерал', 'Немцы выпустили химическое оружие,', 'и большая часть людей погибла',
+                      'Нам необходимо пойти в контратаку'],
+          'Verden': ['Генерал', 'Немцы начали жестокое наступление на крепость Верден',
+                     'Мы должны защитить её любой ценой', 'Также необходимо отбросить немцев назад'],
+          'Somma': ['Генерал', 'Наша задача - начать наступление,', 'чтобы отвлечь немцев от Вердена',
+                    'Продвиньтесь вперёд, используя новейшую разработку -', 'танки']}
 
 
 class FirstMenu(Window):
@@ -39,13 +51,16 @@ class FirstMenu(Window):
         sys.exit()
 
     def Osovets(self):
-        pass
+        Intro(texsts['Osovets'])
+        Level('Оборона крепости Осовец', 'Osovets', False, 1, 10, desc['Osovets'])
 
     def Verden(self):
-        pass
+        Intro(texsts['Verden'])
+        Level('Сражение за Верден', 'Verden', False, 1, 15, desc['Verden'])
 
     def Somma(self):
-        pass
+        Intro(texsts['Somma'])
+        Level('Битва на Сомме', 'Somma', False, 1, 6, desc['Somma'])
 
     def goToLast(self):
         self.running = False

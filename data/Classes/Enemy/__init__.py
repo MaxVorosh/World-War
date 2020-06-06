@@ -53,7 +53,7 @@ class Enemy(pygame.sprite.Sprite):
         turns = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for i in turns:
             if (0 <= other.x + i[0] < 7 and
-                    0 <= other.y < 7 and
+                    0 <= other.y + i[1] < 7 and
                     board[other.y + i[1]][other.x + i[0]] is None and
                     self.go_to(self.move_range - 1, self.x, self.y, other.x + i[0], other.y + i[1], board, path)):
                 self.move(other.x + i[0], other.y + i[1])
@@ -65,7 +65,7 @@ class Enemy(pygame.sprite.Sprite):
         other.strength = other.hp // 3
         if other.hp <= 0:
             other.kill()
-        else:
+        elif other.__class__.__name__ != 'Artillery':
             if defence[self.y][self.x]:
                 self.hp -= other.strength // 2
             else:
@@ -75,4 +75,11 @@ class Enemy(pygame.sprite.Sprite):
                 self.kill()
 
     def can_attach(self, x, y, board, path):
-        return self.go_to(self.attach_range + self.move_range - 1, self.x, self.y, x, y, board, path)
+        return ((self.go_to(self.move_range - 1, self.x, self.y, x - 1, y, board, path) and (board[y][x - 1] is None or
+                 board[y][x - 1] == self)) or
+                (self.go_to(self.move_range - 1, self.x, self.y, x + 1, y, board, path) and (board[y][x + 1] is None or
+                 board[y][x + 1] == self)) or
+                (self.go_to(self.move_range - 1, self.x, self.y, x, y - 1, board, path) and (board[y - 1][x] is None or
+                 board[y - 1][x] == self)) or
+                (self.go_to(self.move_range - 1, self.x, self.y, x, y + 1, board, path) and (board[y + 1][x] is None or
+                 board[y + 1][x] == self)))

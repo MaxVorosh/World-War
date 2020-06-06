@@ -5,9 +5,22 @@ from data.Classes.LevelMenu import *
 from data.Classes.FirstMenu import *
 from data.Classes.SecondMenu import *
 from ..Level import *
+from ..Intro import Intro
 
-
-desc = {'Blitzkrieg': '1940 г. Территория Франции', 'Wolfpack': ''}
+desc = {'Blitzkrieg': '1940 г. Территория Франции', 'Wolfpack': '1940 г. Атлантический океан'}
+text = {'Blitzkrieg': ['Генерал', 'Вам необходимо прорвать оборону Франции и захватить её',
+                       'Ключевые точки обозначены жёлтым', 'Для выделения юнита, нажмите на него',
+                       'После этого он будет помечен зелёным кружком',
+                       'Клетки, в которые юнит может двигаться, выделены синим',
+                       'Те, котороые может атаковать - красным',
+                       'Чтобы двигаться или атаковать -', 'нажмите на необходимую клетку',
+                       'Если юнит попадает на ключевую точку,', 'то теперь вы её контролируете',
+                       'Если туда попадает вражеский юнит - контроль снимается',
+                       'Для победы необходимо контролировать все ключевые точки',
+                       'Чтобы закончить ход, нажмите на песочные часы'],
+        'Wolfpack': ['Генерал', 'Вам необходимо атаковать транспортные суда', 'Есть три типа боевых кораблей',
+                     'Субмарины - уязвимы для эсминцев', 'Эсминцы - уязвимы для ликоров',
+                     'Линкоры - уязвимы для субмарин', 'Транспортные суда не представляют опасности']}
 
 
 class ZeroMenu(Window):
@@ -36,16 +49,17 @@ class ZeroMenu(Window):
         self.at.set_func(self.Attach)
         self.set_background("data\\Sprites\\bg.jpg")
 
-
     def exitFunc(self):
         pygame.quit()
         sys.exit()
 
     def Blizkreig(self):
-        Level('Блицкриг', 'Blitzkrieg', True, 0, 10, desc['Blitzkrieg'])
+        Intro(text['Blitzkrieg'])
+        Level('Блицкриг', 'Blitzkrieg', True, 0, 5, desc['Blitzkrieg'])
 
     def Attach(self):
-        Level('Атака на конвои', 'Wolfpack', True, 0, 10, desc['Wolfpack'])
+        Intro(text['Wolfpack'])
+        Level('Атака на конвои', 'Wolfpack', True, 0, 8, desc['Wolfpack'])
 
     def goToLast(self):
         self.running = False
@@ -65,4 +79,3 @@ class ZeroMenu(Window):
                 self.screen.blit(self.background, (0, 0))
             self.sprites.draw(self.screen)
             pygame.display.flip()
-
