@@ -2,6 +2,7 @@ from data.Classes.Window import *
 from data.Classes.Button import *
 import sys
 from data.Classes.LevelMenu import *
+from ..Info import Info
 
 
 class MainMenu(Window):
@@ -20,6 +21,10 @@ class MainMenu(Window):
         self.start.resize(100, 100)
         self.start.move(270, 270)
         self.start.set_func(self.startFunc)
+        self.info = Button(self, "data\\Sprites\\info_1.png")
+        self.info.resize(80, 80)
+        self.info.move(0, 0)
+        self.info.set_func(self.infoFunk)
         self.set_background("data\\Sprites\\bg.jpg")
 
     def startFunc(self):
@@ -28,6 +33,9 @@ class MainMenu(Window):
     def exitFunc(self):
         pygame.quit()
         sys.exit()
+
+    def infoFunk(self):
+        Info()
 
     def run(self):
         pygame.init()
