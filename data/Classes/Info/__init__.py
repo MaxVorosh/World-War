@@ -41,7 +41,9 @@ class Info(Window):
         self.set_background("data\\Sprites\\bg.jpg")
 
     def run(self):
-        text = ['Создатель игры:', 'MaxVorosh/MaxVor']
+        text = ['Создатель игры:', 'MaxVorosh/MaxVor', 'Т.к. я - единственный создатель, то',
+                'изображённые войска могут не в полной мере', 'соответствовать истории',
+                'За поиск изображений спасибо Денису Смирнову']
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
