@@ -1,4 +1,5 @@
 from data.Classes.Fight import Fight
 
 
-Fight('saddfgerth', 'afgerag', 'W', True, True)
+f = Fight(['saddfgerth'], ['afgerag'], 'W', False, False)
+print(f.run())

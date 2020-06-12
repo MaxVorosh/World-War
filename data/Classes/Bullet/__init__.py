@@ -13,21 +13,16 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.target = target
-        self.target_group = pygame.sprite.Group()
-        self.target_group.add(target)
         self.route = last
+        self.mask = pygame.mask.from_surface(self.image)
         self.v = 15
-        self.borders = pygame.sprite.Group()
-        coords = [(0, 0, 560, 0), (0, 0, 0, 560), (0, 560, 560, 560), (560, 0, 560, 560)]
-        for i in range(4):
-            self.borders.add(Border(*coords[i]))
 
     def update(self):
         self.rect.x += self.v * self.route[0]
         self.rect.y += self.v * self.route[1]
-        if pygame.sprite.spritecollideany(self, self.borders):
+        if not(0 <= self.rect.x < 560 and 0 <= self.rect.y < 560):
             self.kill()
         else:
-            if pygame.sprite.spritecollideany(self, self.target_group):
+            if pygame.sprite.collide_mask(self, self.target):
                 self.target.hp = 0
                 self.kill()

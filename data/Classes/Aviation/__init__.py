@@ -15,11 +15,11 @@ class Aviation(pygame.sprite.Sprite):
         self.rect.y = y
         self.hp = 1
         self.last = (0, 1)
+        self.mask = pygame.mask.from_surface(self.image)
         self.borders = pygame.sprite.Group()
         coords = [(0, 0, 560, 0), (0, 0, 0, 560), (0, 560, 560, 560), (560, 0, 560, 560)]
         for i in range(4):
             self.borders.add(Border(*coords[i]))
-            # print(coords[i][0], coords[i][1], coords[(i + 1) % 4][0], coords[(i + 1) % 4][1])
 
     def update(self, add_x, add_y):
         if self.last == (0, 1):
@@ -43,3 +43,5 @@ class Aviation(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, self.borders):
             self.rect.x -= add_x
             self.rect.y -= add_y
+        if self.hp == 0:
+            self.kill()

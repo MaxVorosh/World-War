@@ -7,7 +7,7 @@ class Bomber(Aviation):
         self.target = pygame.sprite.Group()
         self.target.add(target)
         super().__init__(im_name, x, y)
-        self.v = 5
+        self.v = 10
 
     def is_win(self):
         return pygame.sprite.spritecollideany(self, self.target)
