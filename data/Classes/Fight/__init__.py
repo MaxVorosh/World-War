@@ -102,31 +102,55 @@ class Fight:
 
     def other_turn(self):
         if self.is_fighter:
-            '''if self.target.rect.x + 80 < self.other.rect.x:
-                self.other.last = (-1, 0)
-                self.other.rect.x -= self.other.v
-                if pygame.sprite.spritecollideany(self.other, self.bullets):
-                    self.other.rect.x += self.other.v
+            x = self.other.rect.x
+            y = self.other.rect.y
+            lasts = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+            if self.target.rect.x + 80 <= self.other.rect.x:
+                lasts[0] = (-1, 0)
+                lasts[2] = (1, 0)
+                if self.target.rect.y + 80 <= self.other.rect.y:
+                    lasts[1] = (0, -1)
+                    lasts[3] = (0, 1)
                 else:
-                    self.other.rect.x += self.other.v
-                    return
-            if self.target.rect.y + 80 < self.other.rect.y:
-                self.other.last = (0, -1)
-                self.other.rect.y -= self.other.v
-                if pygame.sprite.spritecollideany(self.other, self.bullets):
-                    self.other.rect.y += self.other.v
+                    lasts[1] = (0, 1)
+                    lasts[3] = (0, -1)
+            elif self.target.rect.x > self.other.rect.x:
+                lasts[2] = (-1, 0)
+                lasts[0] = (1, 0)
+                if self.target.rect.y + 80 <= self.other.rect.y:
+                    lasts[1] = (0, -1)
+                    lasts[3] = (0, 1)
                 else:
-                    self.other.rect.y += self.other.v
-                    return
-            if self.target.rect.x > self.other.rect.x + 80:
-                self.other.last = (1, 0)
-                self.other.rect.x += self.other.v
-                if pygame.sprite.spritecollideany(self.other, self.bullets):
-                    self.other.rect.x -= self.other.v
+                    lasts[1] = (0, 1)
+                    lasts[3] = (0, -1)
+            else:
+                lasts[1] = (-1, 0)
+                lasts[3] = (1, 0)
+                if self.target.rect.y + 80 <= self.other.rect.y:
+                    lasts[0] = (0, -1)
+                    lasts[2] = (0, 1)
                 else:
-                    self.other.rect.x -= self.other.v
-                    return
-            self.other.last = (0, 1)'''
+                    lasts[0] = (0, 1)
+                    lasts[2] = (0, -1)
+            for i in lasts:
+                self.other.last = i
+                self.other.rect.x = x
+                self.other.rect.y = y
+                fl = True
+                for j in range(10):
+                    self.other.rect.x += self.other.v * i[0]
+                    self.other.rect.y += self.other.v * i[1]
+                    new_bullet = pygame.sprite.Group()
+                    for bul in self.bullets:
+                        Bullet(bul.rect.x + bul.v * i[0], bul.rect.y + bul.v * i[1], bul.target, bul.route, new_bullet)
+                    if pygame.sprite.spritecollideany(self.other, new_bullet):
+                        fl = False
+                        break
+                if fl:
+                    break
+            self.other.rect.x = x
+            self.other.rect.y = y
+            self.other.update()
         else:
             if self.hero.rect.x + 80 <= self.other.rect.x:
                 self.other.last = (-1, 0)
