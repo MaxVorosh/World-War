@@ -57,7 +57,7 @@ class SecondMenu(Window):
 
     def midway(self):
         Intro(texts['midway'])
-        Level('Взятие Мидуэя', 'Midway', False, 2, 9, desc['midway'])
+        Level('Взятие Мидуэя', 'Midway', False, 2, 8, desc['midway'])
 
     def overloard(self):
         Intro(texts['overloard'])

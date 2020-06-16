@@ -6,11 +6,11 @@ class Artillery(Enemy):
     def __init__(self, attach, x, y, im_name, cell_size, is_axis, hp):
         super().__init__(attach, 2, 1.5, x, y, im_name, cell_size, is_axis, hp)
 
-    def attach(self, other, board, defence, path):
+    def attach(self, other, board, defence, path, k):
         if defence[other.y][other.y]:
-            other.hp -= self.strength // 2
+            other.hp -= int(self.strength * k // 2)
         else:
-            other.hp -= self.strength
+            other.hp -= int(self.strength * k)
         other.strength = other.hp // 3
         if other.hp <= 0:
             other.kill()

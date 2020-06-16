@@ -22,5 +22,5 @@ class Transport(Enemy):
     def can_attach(self, x, y, board, path):
         return False
 
-    def attach(self, other, board, defence, path):
+    def attach(self, other, board, defence, path, k):
         pass

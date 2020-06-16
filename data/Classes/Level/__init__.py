@@ -10,6 +10,9 @@ from ..Submarine import Submarine
 from ..Transport import Transport
 from ..Battleship import Battleship
 from ..Destroyer import Destroyer
+from random import randint
+from ..Fight import Fight
+from ..Intro import Intro
 
 
 def upndown(let):
@@ -73,6 +76,7 @@ class Level:
         self.need_turns = need_turns
         self.width = 7
         self.height = 7
+        self.text, self.text_r = '', ''
         self.last_x = None
         self.last_y = None
         self.can_move = []
@@ -185,8 +189,8 @@ class Level:
         self.running = True
         win = 0
         while self.running:
-            text_r = ['Ход ', str(self.turns), '/', str(self.need_turns)]
-            text = [self.title + ' - ' + self.description]
+            self.text_r = ['Ход ', str(self.turns), '/', str(self.need_turns)]
+            self.text = [self.title + ' - ' + self.description]
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exitFunc()
@@ -197,8 +201,8 @@ class Level:
                     if event.pos[1] < self.cell_size and event.pos[0] > self.height * self.cell_size:
                         self.go_to_last()
             self.screen.fill((0, 0, 0))
-            make_fon(self.screen, text)
-            make_fon_2(self.screen, text_r)
+            make_fon(self.screen, self.text)
+            make_fon_2(self.screen, self.text_r)
             self.all_sprites.draw(self.screen)
             self.techs_sprites.draw(self.screen)
             if self.turns > self.need_turns:
@@ -272,7 +276,23 @@ class Level:
                 #     print(*i)
                 self.board[self.last_y][self.last_x].is_moved = True
                 enem = self.board[self.last_y][self.last_x]
-                enem.attach(self.board[cell[1]][cell[0]], self.board, self.defence, self.path)
+                a = randint(0, 10)
+                k = 1
+                if a == 0:
+                    t = randint(0, 1)
+                    if t == 0:
+                        Intro(['Ваша задача - разбомбить цель', 'Для этого подлетите к указанной цели',
+                               'Остерегайтесь пуль вражеского истребителя',
+                               'От Вашего результата зависит урон, нанесённый Вами',
+                               'Изначально Вы находитесь в левом нижнем углу'])
+                    else:
+                        Intro(['Ваша задача - подбить вражеский бомбардировщик',
+                               'Для этого стреляйте по нему, с помощью ЛКМ',
+                               'От вашего результата зависит урон, нанесённый Вами',
+                               'Изначально Вы находитесь в правом верхнем углу'])
+                    f = Fight(self.text, self.text_r, 'W', t, self.is_axis)
+                    k = f.run()
+                enem.attach(self.board[cell[1]][cell[0]], self.board, self.defence, self.path, k)
                 x = enem.x
                 y = enem.y
                 self.board[self.last_y][self.last_x], self.board[y][x] = self.board[y][x], self.board[self.last_y][
@@ -333,7 +353,24 @@ class Level:
                             else:
                                 x = sprite.x
                                 y = sprite.y
-                                sprite.attach(self.board[i[1]][i[0]], self.board, self.defence, self.path)
+                                a = randint(0, 10)
+                                k = 1
+                                if sprite.__class__.__name__ != 'Transport':
+                                    if a == 0:
+                                        t = randint(0, 1)
+                                        if t == 0:
+                                            Intro(['Ваша задача - разбомбить цель', 'Для этого подлетите к указанной цели',
+                                                   'Остерегайтесь пуль вражеского истребителя',
+                                                   'От Вашего результата зависит урон, нанесённый по Вам',
+                                                   'Изначально Вы находитесь в левом нижнем углу'])
+                                        else:
+                                            Intro(['Ваша задача - подбить вражеский бомбардировщик',
+                                                   'Для этого стреляйте по нему, с помощью ЛКМ',
+                                                   'От вашего результата зависит урон, нанесённый по Вам',
+                                                   'Изначально Вы находитесь в правом верхнем углу'])
+                                        f = Fight(self.text, self.text_r, 'W', t, self.is_axis)
+                                        k = 1 / f.run()
+                                sprite.attach(self.board[i[1]][i[0]], self.board, self.defence, self.path, k)
                                 self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], \
                                                                                    self.board[y][x]
                                 if sprite.hp <= 0:
@@ -358,7 +395,24 @@ class Level:
             if minim is not None:
                 x = sprite.x
                 y = sprite.y
-                sprite.attach(minim, self.board, self.defence, self.path)
+                a = randint(0, 10)
+                k = 1
+                if sprite.__class__.__name__ != 'Transport':
+                    if a == 0:
+                        t = randint(0, 1)
+                        if t == 0:
+                            Intro(['Ваша задача - разбомбить цель', 'Для этого подлетите к указанной цели',
+                                   'Остерегайтесь пуль вражеского истребителя',
+                                   'От Вашего результата зависит урон, нанесённый по Вам',
+                                   'Изначально Вы находитесь в левом нижнем углу'])
+                        else:
+                            Intro(['Ваша задача - подбить вражеский бомбардировщик',
+                                   'Для этого стреляйте по нему, с помощью ЛКМ',
+                                   'От вашего результата зависит урон, нанесённый по Вам',
+                                   'Изначально Вы находитесь в правом верхнем углу'])
+                        f = Fight(self.text, self.text_r, 'W', t, self.is_axis)
+                        k = 1 / f.run()
+                sprite.attach(minim, self.board, self.defence, self.path, k)
                 self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], self.board[y][x]
                 if self.board[sprite.y][sprite.x].hp <= 0:
                     self.board[sprite.y][sprite.x] = None

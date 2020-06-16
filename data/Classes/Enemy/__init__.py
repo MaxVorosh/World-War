@@ -49,7 +49,7 @@ class Enemy(pygame.sprite.Sprite):
                 or self.go_to(turns - path[y + 1][x], x, y + 1, need_x, need_y, board, path)
                 or self.go_to(turns - path[y - 1][x], x, y - 1, need_x, need_y, board, path))
 
-    def attach(self, other, board, defence, path):
+    def attach(self, other, board, defence, path, k):
         turns = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for i in turns:
             if (0 <= other.x + i[0] < 7 and
@@ -59,17 +59,17 @@ class Enemy(pygame.sprite.Sprite):
                 self.move(other.x + i[0], other.y + i[1])
                 break
         if defence[other.y][other.x]:
-            other.hp -= self.strength // 2
+            other.hp -= int(self.strength * k // 2)
         else:
-            other.hp -= self.strength
+            other.hp -= int(self.strength * k)
         other.strength = other.hp // 3
         if other.hp <= 0:
             other.kill()
         elif other.__class__.__name__ != 'Artillery':
             if defence[self.y][self.x]:
-                self.hp -= other.strength // 2
+                self.hp -= int(other.strength / k // 2)
             else:
-                self.hp -= other.strength
+                self.hp -= int(other.strength / k)
             self.strength = self.hp // 3
             if self.hp <= 0:
                 self.kill()

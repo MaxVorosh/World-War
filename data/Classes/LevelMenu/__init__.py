@@ -10,6 +10,7 @@ from data.Classes.ZeroMenu import *
 class LevelMenu(Window):
     def __init__(self):
         super().__init__()
+        self.running = True
         self.ui()
         self.run()
 
@@ -21,16 +22,20 @@ class LevelMenu(Window):
         self.exit.set_func(self.exitFunc)
         self.ww0 = Button(self, "data\\Sprites\\ww0.jpg")
         self.ww0.resize(300, 200)
-        self.ww0.move(50, 10)
+        self.ww0.move(150, 10)
         self.ww0.set_func(self.WW0)
         self.ww1 = Button(self, "data\\Sprites\\ww1.jpg")
         self.ww1.resize(300, 200)
-        self.ww1.move(50, 220)
+        self.ww1.move(150, 220)
         self.ww1.set_func(self.WW1)
         self.ww2 = Button(self, "data\\Sprites\\ww2.jpg")
         self.ww2.resize(300, 200)
-        self.ww2.move(50, 430)
+        self.ww2.move(150, 430)
         self.ww2.set_func(self.WW2)
+        self.last = Button(self, "data\\Sprites\\Last_1.png")
+        self.last.resize(80, 80)
+        self.last.move(0, 0)
+        self.last.set_func(self.goToLast)
         self.set_background("data\\Sprites\\bg.jpg")
 
     def WW1(self):
@@ -42,14 +47,16 @@ class LevelMenu(Window):
     def WW2(self):
         SecondMenu()
 
+    def goToLast(self):
+        self.running = False
+
     def exitFunc(self):
         pygame.quit()
         sys.exit()
 
     def run(self):
         pygame.init()
-        run = True
-        while run:
+        while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exitFunc()
@@ -61,4 +68,3 @@ class LevelMenu(Window):
                 self.screen.blit(self.background, (0, 0))
             self.sprites.draw(self.screen)
             pygame.display.flip()
-        pygame.quit()

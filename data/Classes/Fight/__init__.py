@@ -1,11 +1,35 @@
 import pygame
 import sys
-from ..Level import make_fon, make_fon_2
 from ..Tile import Tile
 from ..Fighter import Fighter
 from ..Bomber import Bomber
 from random import randint
 from ..Bullet import Bullet
+from ..Intro import Intro
+
+
+def make_fon(screen, intro_text):
+    font = pygame.font.Font(None, 30)
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord = 560 + 40 - string_rendered.get_height() // 2
+        intro_rect.top = text_coord
+        intro_rect.x = screen.get_width() // 2 - string_rendered.get_width() // 2 - 40
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+
+def make_fon_2(screen, intro_text):
+    font = pygame.font.Font(None, 30)
+    text_coord = 300
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.top = text_coord
+        intro_rect.x = 600 - string_rendered.get_width() // 2
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
 
 
 class Fight:
@@ -32,14 +56,14 @@ class Fight:
         self.is_fighter = is_fighter
         if is_fighter:
             if is_axis:
-                bom = Bomber('axis_bom', randint(320, 479), randint(320, 479), self.target)
-                self.other = bom
-                fig = Fighter('allies_fig', randint(1, 160), randint(1, 160), self.other, self.bullets)
-                self.hero = fig
-            else:
                 bom = Bomber('allies_bom', randint(320, 479), randint(320, 479), self.target)
                 self.other = bom
                 fig = Fighter('axis_fig', randint(1, 160), randint(1, 160), self.other, self.bullets)
+                self.hero = fig
+            else:
+                bom = Bomber('axis_bom', randint(320, 479), randint(320, 479), self.target)
+                self.other = bom
+                fig = Fighter('allies_fig', randint(1, 160), randint(1, 160), self.other, self.bullets)
                 self.hero = fig
         else:
             if is_axis:
@@ -88,9 +112,11 @@ class Fight:
                 i.update()
             if self.hero.is_win():
                 k = 1.5
+                Intro(['Успех'])
                 self.running = False
             if self.other.is_win():
-                k = 0.6
+                k = 2 / 3
+                Intro(['Неудача'])
                 self.running = False
             make_fon(self.screen, self.text)
             make_fon_2(self.screen, self.right_text)
@@ -137,7 +163,7 @@ class Fight:
                 self.other.rect.x = x
                 self.other.rect.y = y
                 fl = True
-                for j in range(10):
+                for j in range(30):
                     self.other.rect.x += self.other.v * i[0]
                     self.other.rect.y += self.other.v * i[1]
                     new_bullet = pygame.sprite.Group()
