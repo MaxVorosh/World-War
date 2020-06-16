@@ -103,6 +103,7 @@ class Level:
         self.all_sprites.add(go_to_last_button)
         f = open("data\\Maps\\Land\\" + title + ".txt")
         data_land = [i.split() for i in f.readlines()]
+        self.data_land = data_land
         f = open("data\\Maps\\Army\\" + title + ".txt")
         data_army = [i.split() for i in f.readlines()]
         for i in range(self.height):
@@ -184,8 +185,6 @@ class Level:
         self.run()
 
     def run(self):
-        # for i in self.board:
-        #     print(*i)
         self.running = True
         win = 0
         while self.running:
@@ -262,7 +261,6 @@ class Level:
     def on_click(self, cell):
         if self.is_clicked:
             self.is_clicked = False
-            # print(self.last_y, self.last_x, cell[0], cell[1])
             if cell in self.can_move:
                 self.board[self.last_y][self.last_x].is_moved = True
                 self.board[self.last_y][self.last_x].move(cell[0], cell[1])
@@ -272,8 +270,6 @@ class Level:
                 self.can_move = []
                 self.can_attach = []
             elif cell in self.can_attach:
-                # for i in self.board:
-                #     print(*i)
                 self.board[self.last_y][self.last_x].is_moved = True
                 enem = self.board[self.last_y][self.last_x]
                 a = randint(0, 10)
@@ -285,12 +281,14 @@ class Level:
                                'Остерегайтесь пуль вражеского истребителя',
                                'От Вашего результата зависит урон, нанесённый Вами',
                                'Изначально Вы находитесь в левом нижнем углу'])
+                        tile = self.data_land[cell[1]][cell[0]]
                     else:
                         Intro(['Ваша задача - подбить вражеский бомбардировщик',
                                'Для этого стреляйте по нему, с помощью ЛКМ',
                                'От вашего результата зависит урон, нанесённый Вами',
                                'Изначально Вы находитесь в правом верхнем углу'])
-                    f = Fight(self.text, self.text_r, 'W', t, self.is_axis)
+                        tile = self.data_land[enem.y][enem.x]
+                    f = Fight(self.text, self.text_r, tile[0], t, self.is_axis)
                     k = f.run()
                 enem.attach(self.board[cell[1]][cell[0]], self.board, self.defence, self.path, k)
                 x = enem.x
@@ -363,12 +361,14 @@ class Level:
                                                    'Остерегайтесь пуль вражеского истребителя',
                                                    'От Вашего результата зависит урон, нанесённый по Вам',
                                                    'Изначально Вы находитесь в левом нижнем углу'])
+                                            tile = self.data_land[i[1]][i[0]]
                                         else:
                                             Intro(['Ваша задача - подбить вражеский бомбардировщик',
                                                    'Для этого стреляйте по нему, с помощью ЛКМ',
                                                    'От вашего результата зависит урон, нанесённый по Вам',
                                                    'Изначально Вы находитесь в правом верхнем углу'])
-                                        f = Fight(self.text, self.text_r, 'W', t, self.is_axis)
+                                            tile = self.data_land[y][x]
+                                        f = Fight(self.text, self.text_r, tile[0], t, self.is_axis)
                                         k = 1 / f.run()
                                 sprite.attach(self.board[i[1]][i[0]], self.board, self.defence, self.path, k)
                                 self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], \
@@ -386,7 +386,6 @@ class Level:
                         if self.height > i >= 0:
                             for j in range(sprite.x - 3, sprite.x + 4):
                                 if self.width > j >= 0 and not (i == sprite.y and j == sprite.x):
-                                    # print(j, i, self.board[i][j], sprite.x, sprite.y)
                                     if self.board[i][j] is not None and self.board[i][j].is_axis == self.is_axis:
                                         if self.board[sprite.y][sprite.x].can_attach(j, i, self.board, self.path):
                                             if self.board[i][j].hp < min_hp:
@@ -405,12 +404,14 @@ class Level:
                                    'Остерегайтесь пуль вражеского истребителя',
                                    'От Вашего результата зависит урон, нанесённый по Вам',
                                    'Изначально Вы находитесь в левом нижнем углу'])
+                            tile = self.data_land[minim.y][minim.x]
                         else:
                             Intro(['Ваша задача - подбить вражеский бомбардировщик',
                                    'Для этого стреляйте по нему, с помощью ЛКМ',
                                    'От вашего результата зависит урон, нанесённый по Вам',
                                    'Изначально Вы находитесь в правом верхнем углу'])
-                        f = Fight(self.text, self.text_r, 'W', t, self.is_axis)
+                            tile = self.data_land[y][x]
+                        f = Fight(self.text, self.text_r, tile[0], t, self.is_axis)
                         k = 1 / f.run()
                 sprite.attach(minim, self.board, self.defence, self.path, k)
                 self.board[y][x], self.board[sprite.y][sprite.x] = self.board[sprite.y][sprite.x], self.board[y][x]
