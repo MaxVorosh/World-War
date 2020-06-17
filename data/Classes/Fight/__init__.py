@@ -50,6 +50,8 @@ class Fight:
                     self.all_sprites.add(Tile(j, i, 80, 'Поле'))
                 if land == 'F':
                     self.all_sprites.add(Tile(j, i, 80, 'Лес'))
+                else:
+                    self.all_sprites.add(Tile(j, i, 80, 'Поле'))
         self.running = True
         self.target = Tile(randint(0, 2), randint(0, 2), 80, 'Target')
         self.all_sprites.add(self.target)
